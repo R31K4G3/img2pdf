@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Image to PDF</title>
+  </head>
+  <body style="background: #2D3033; color: #D2D6C1;">
+    <div>Image(s): <input id="files-input" type="file" multiple disabled><span id="filenames"></span></div>
+    <div><a id="result" style="color:#0FF"></a></div>
+    <script type="text/javascript">
+      ~async function() {
+        const result = document.getElementById("result");
+        const input = document.getElementById("files-input");
+        const filenames = document.getElementById("filenames");
+
+        const { init, newPdf } = await import("./img2pdf.js");
+        init(await WebAssembly.compile(await (await fetch("./img2pdf.wasm")).arrayBuffer()));
+
+        input.addEventListener("input", async () => {
+          try { URL.revokeObjectURL(result.href); } catch(_) { /* ignore errors */ }
+          result.href = "javascript:void(0)";
+          result.textContent = "processing...";
+          result.removeAttribute("download");
+          try {
+            const files = [...input.files];
+            filenames.textContent = files.map(v => v.name).join(", ")
+            const fileBytes = await Promise.all(files.map(v => v.arrayBuffer()));
+            const allBytes = new Uint8Array(await new Blob(fileBytes).arrayBuffer());
+            const indices = Uint32Array.from(fileBytes.reduce((v, file) => {
+              v.indices.push(v.sum);
+              v.sum += file.byteLength;
+              return v;
+            }, {
+              __proto__: null,
+              indices: [],
+              sum: 0
+            }).indices);
+            const filename = `${Date.now()}.pdf`;
+            const fileUrl = URL.createObjectURL(new File([newPdf(indices, allBytes)], filename, { type: "application/pdf" }));
+            result.href = fileUrl;
+            result.textContent = fileUrl;
+            result.download = filename;
+          } catch(e) {
+            result.textContent = `${e}`;
+          }
+        });
+
+        input.disabled = false;
+      }();
+    </script>
+  </body>
+</html>
