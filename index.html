@@ -29,7 +29,7 @@
             const allBytes = new Uint8Array(await new Blob(fileBytes).arrayBuffer());
             const sizes = Uint32Array.from(fileBytes.map(file => file.byteLength));
             const filename = `${Date.now()}.pdf`;
-            const fileUrl = URL.createObjectURL(new File([img2pdf(sizes, allBytes)], filename, { type: "application/pdf" }));
+            const fileUrl = URL.createObjectURL(new File([img2pdf(allBytes, sizes)], filename, { type: "application/pdf" }));
             result.href = fileUrl;
             result.textContent = fileUrl;
             result.download = filename;
