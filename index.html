@@ -27,17 +27,9 @@
             filenames.textContent = files.map(v => v.name).join(", ")
             const fileBytes = await Promise.all(files.map(v => v.arrayBuffer()));
             const allBytes = new Uint8Array(await new Blob(fileBytes).arrayBuffer());
-            const indices = Uint32Array.from(fileBytes.reduce((v, file) => {
-              v.indices.push(v.sum);
-              v.sum += file.byteLength;
-              return v;
-            }, {
-              __proto__: null,
-              indices: [],
-              sum: 0
-            }).indices);
+            const sizes = Uint32Array.from(fileBytes.map(file => file.byteLength));
             const filename = `${Date.now()}.pdf`;
-            const fileUrl = URL.createObjectURL(new File([newPdf(indices, allBytes)], filename, { type: "application/pdf" }));
+            const fileUrl = URL.createObjectURL(new File([img2pdf(sizes, allBytes)], filename, { type: "application/pdf" }));
             result.href = fileUrl;
             result.textContent = fileUrl;
             result.download = filename;
