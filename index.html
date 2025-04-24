@@ -26,7 +26,7 @@
               }
               resolve(e.data.pdf);
             });
-            worker.postMessage(fileBytes, { transfer: fileBytes });
+            worker.postMessage({ msgId, fileBytes }, { transfer: fileBytes });
           });
         }
 
