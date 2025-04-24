@@ -13,9 +13,22 @@
         const result = document.getElementById("result");
         const input = document.getElementById("files-input");
         const filenames = document.getElementById("filenames");
+        const worker = new Worker("./worker.js");
 
-        const { default: init, img2pdf } = await import("./img2pdf.js");
-        init({ module_or_path: await WebAssembly.compile(await (await fetch("./img2pdf.wasm")).arrayBuffer()) });
+        function img2pdf(fileBytes) {
+          return new Promise((resolve, reject) => {
+            const msgId = `${Date.now() % 10000000 + Math.random()}`;
+            worker.addEventListener("message", e => {
+              if (e.data.msgId !== msgId) return;
+              if (e.data.error !== null) {
+                reject(e.data.error);
+                return;
+              }
+              resolve(e.data.pdf);
+            });
+            worker.postMessage(fileBytes, { transfer: fileBytes });
+          });
+        }
 
         input.addEventListener("input", async () => {
           try { URL.revokeObjectURL(result.href); } catch(_) { /* ignore errors */ }
@@ -26,15 +39,14 @@
             const files = [...input.files];
             filenames.textContent = files.map(v => v.name).join(", ")
             const fileBytes = await Promise.all(files.map(v => v.arrayBuffer()));
-            const allBytes = new Uint8Array(await new Blob(fileBytes).arrayBuffer());
-            const sizes = Uint32Array.from(fileBytes.map(file => file.byteLength));
+            const pdfData = await img2pdf(fileBytes);
             const filename = `${Date.now()}.pdf`;
-            const fileUrl = URL.createObjectURL(new File([img2pdf(allBytes, sizes)], filename, { type: "application/pdf" }));
+            const fileUrl = URL.createObjectURL(new File([pdfData], filename, { type: "application/pdf" }));
             result.href = fileUrl;
             result.textContent = fileUrl;
             result.download = filename;
           } catch(e) {
-            result.textContent = `${e}`;
+            result.textContent = e;
           }
         });
 
