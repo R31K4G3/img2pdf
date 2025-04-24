@@ -14,7 +14,7 @@
         const input = document.getElementById("files-input");
         const filenames = document.getElementById("filenames");
 
-        const { init, newPdf } = await import("./img2pdf.js");
+        const { default: init, newPdf } = await import("./img2pdf.js");
         init(await WebAssembly.compile(await (await fetch("./img2pdf.wasm")).arrayBuffer()));
 
         input.addEventListener("input", async () => {
