@@ -1,4 +1,4 @@
-const { default: init, img2pdf } = await import("./img2pdf.js");
+import init, { img2pdf } from "./img2pdf.js";
 
 let flagAsReady;
 const promiseWaitingForReady = new Promise(r => { flagAsReady = r; });
