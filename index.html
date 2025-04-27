@@ -18,7 +18,7 @@
         <br>
         <div id="files-preview"></div>
         <div><button id="create-button">PDF に変換</button></div>
-        <div><a id="result-url" style="color:#0FF"></a></div>
+        <div><a id="result-url"></a></div>
     </div>
     <script type="text/javascript">
         ~async function() {
@@ -92,11 +92,13 @@
             creationButton.addEventListener("click", async () => {
                 try { URL.revokeObjectURL(result.href); } catch(_) { /* ignore errors */ }
                 result.href = "javascript:void(0)";
+                result.style.color = "#0FF";
                 result.textContent = "processing...";
                 result.style.cursor = "default";
                 result.removeAttribute("download");
                 if (!fileList.length) {
                     result.textContent = "No image";
+                    result.style.color = "#F00";
                     return;
                 }
                 try {
@@ -105,11 +107,13 @@
                     const filename = `${Date.now()}.pdf`;
                     const fileUrl = URL.createObjectURL(new File([pdfData], filename, { type: "application/pdf" }));
                     result.style.cursor = "";
+                    result.style.color = "#0F0";
                     result.href = fileUrl;
                     result.textContent = fileUrl;
                     result.download = filename;
                 } catch(e) {
                     result.textContent = e;
+                    result.style.color = "#F00";
                 }
             });
         }();
