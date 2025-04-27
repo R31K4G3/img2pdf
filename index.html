@@ -18,12 +18,12 @@
         <br>
         <div id="files-preview"></div>
         <div><button id="create-button">PDF に変換</button></div>
-        <div><a id="result" style="color:#0FF"></a></div>
+        <div><a id="result-url" style="color:#0FF"></a></div>
     </div>
     <script type="text/javascript">
         ~async function() {
             const fileList = [];
-            const result = document.getElementById("result");
+            const result = document.getElementById("result-url");
             const input = document.getElementById("files-input");
             const preview = document.getElementById("files-preview");
             const creationButton = document.getElementById("create-button");
@@ -94,6 +94,10 @@
                 result.href = "javascript:void(0)";
                 result.textContent = "processing...";
                 result.removeAttribute("download");
+                if (!fileList.length) {
+                    result.textContent = "No image";
+                    return;
+                }
                 try {
                     const fileBytes = await Promise.all(fileList.map(v => v.arrayBuffer()));
                     const pdfData = await img2pdf(fileBytes);
