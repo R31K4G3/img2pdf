@@ -31,6 +31,7 @@
         }
 
         input.addEventListener("input", async () => {
+          if (!input.files.length) return;
           try { URL.revokeObjectURL(result.href); } catch(_) { /* ignore errors */ }
           result.href = "javascript:void(0)";
           result.textContent = "processing...";
