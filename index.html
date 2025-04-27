@@ -93,6 +93,7 @@
                 try { URL.revokeObjectURL(result.href); } catch(_) { /* ignore errors */ }
                 result.href = "javascript:void(0)";
                 result.textContent = "processing...";
+                result.style.cursor = "default";
                 result.removeAttribute("download");
                 if (!fileList.length) {
                     result.textContent = "No image";
@@ -103,6 +104,7 @@
                     const pdfData = await img2pdf(fileBytes);
                     const filename = `${Date.now()}.pdf`;
                     const fileUrl = URL.createObjectURL(new File([pdfData], filename, { type: "application/pdf" }));
+                    result.style.cursor = "";
                     result.href = fileUrl;
                     result.textContent = fileUrl;
                     result.download = filename;
