@@ -95,8 +95,7 @@
                 result.textContent = "processing...";
                 result.removeAttribute("download");
                 try {
-                    const files = [...input.files];
-                    const fileBytes = await Promise.all(files.map(v => v.arrayBuffer()));
+                    const fileBytes = await Promise.all(fileList.map(v => v.arrayBuffer()));
                     const pdfData = await img2pdf(fileBytes);
                     const filename = `${Date.now()}.pdf`;
                     const fileUrl = URL.createObjectURL(new File([pdfData], filename, { type: "application/pdf" }));
